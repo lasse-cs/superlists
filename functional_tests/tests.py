@@ -42,3 +42,44 @@ def test_can_start_a_todo_list(live_server, page: Page) -> None:
     check_for_row_in_list_table(page, "1: Buy peacock feathers")
 
     # Satisfied, she goes back to sleep.
+
+
+def test_multiple_users_can_start_lists_at_different_urls(live_server, page: Page) -> None:
+    # Edith start a new to-do list
+    page.goto(live_server.url)
+    inputbox = page.get_by_placeholder("Enter a to-do item")
+    inputbox.fill("Buy peacock feathers")
+    inputbox.press("Enter")
+
+    check_for_row_in_list_table(page, "1: Buy peacock feathers")
+
+    # She notices that her list has a unique URL
+    expect(page).to_have_url(re.compile("/lists/.+"))
+    edith_url = page.url
+
+    # Now a new user, Francis, comes along to the site.
+
+    ## We delete all the browser's cookies
+    ## as a way of simulating a brand new user session
+    page.context.clear_cookies()
+
+    # Francis visits the home page. There is no sign of Edith's list
+    page.goto(live_server.url)
+
+    body = page.locator("body")
+    expect(body).not_to_have_text("Buy peacock feathers")
+
+    # Francis starts a new list by entering a new item.
+    # He is less interesting than Edith...
+    inputbox.fill("Buy milk")
+    inputbox.press("Enter")
+    check_for_row_in_list_table(page, "1: Buy milk")
+
+    # Francis gets his own unique URL
+    expect(page).to_have_url(re.compile("/lists/.+"))
+    francis_url = page.url
+    assert francis_url != edith_url
+
+    # Again there is no trace of Edith's list
+    expect(body).not_to_have_text("Buy peacock feathers")
+    expect(body).to_have_text("Buy milk")    
