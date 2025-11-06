@@ -3,7 +3,13 @@ from playwright.sync_api import Page, expect
 import pytest
 
 
-def test_can_start_a_todo_list(page: Page):
+def check_for_row_in_list_table(page: Page, row_text: str) -> None:
+    table = page.get_by_role("table")
+    rows = table.get_by_role("row")
+    expect(rows.filter(has_text=row_text)).to_have_count(1)
+
+
+def test_can_start_a_todo_list(page: Page) -> None:
     # Edith has heard about a cool new online to-do app.
     # She goes to check out its homepage
     page.goto("http://localhost:8000")
@@ -24,10 +30,7 @@ def test_can_start_a_todo_list(page: Page):
     # When she hits enter, the page updates, and now the page lists
     # "1: Buy peacock feathers" as an item in a to-do list
     inputbox.press("Enter")
-
-    table = page.get_by_role("table")
-    rows = table.get_by_role("row")
-    expect(rows.filter(has_text="1: Buy peacock feathers")).to_have_count(1)
+    check_for_row_in_list_table(page, "1: Buy peacock feathers")
 
     # There is still a text box inviting her to add another item
     # She enters "Use peacock feathers to make a fly" (Edith is very methodical)
@@ -35,7 +38,7 @@ def test_can_start_a_todo_list(page: Page):
     inputbox.press("Enter")
 
     # The page updates again, and now shows both items on her list
-    expect(rows.filter(has_text="2: Use peacock feathers to make a fly")).to_have_count(1)
-    expect(rows.filter(has_text="1: Buy peacock feathers")).to_have_count(1)    
+    check_for_row_in_list_table(page, "2: Use peacock feathers to make a fly")
+    check_for_row_in_list_table(page, "1: Buy peacock feathers")
 
     # Satisfied, she goes back to sleep.
