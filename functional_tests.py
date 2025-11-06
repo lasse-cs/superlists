@@ -31,8 +31,11 @@ def test_can_start_a_todo_list(page: Page):
 
     # There is still a text box inviting her to add another item
     # She enters "Use peacock feathers to make a fly" (Edith is very methodical)
-    pytest.fail("Finish the test!")
+    inputbox.fill("Use peacock feathers to make a fly")
+    inputbox.press("Enter")
 
     # The page updates again, and now shows both items on her list
+    expect(rows.filter(has_text="2: Use peacock feathers to make a fly")).to_have_count(1)
+    expect(rows.filter(has_text="1: Buy peacock feathers")).to_have_count(1)    
 
     # Satisfied, she goes back to sleep.
