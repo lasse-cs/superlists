@@ -17,7 +17,7 @@ def test_home_page_uses_home_template(client):
 
 def test_home_page_renders_input_form(client):
     response = client.get("/")
-    assertContains(response, '<form method="POST" action="/">')
+    assertContains(response, '<form method="POST" action="/lists/new">')
     assertContains(response, '<input name="item_text"')
 
 
@@ -41,7 +41,7 @@ def test_list_view_uses_list_template(client):
 
 def test_list_view_renders_input_form(client):
     response = client.get("/lists/the-only-list-in-the-world/")
-    assertContains(response, '<form method="POST" action="/">')
+    assertContains(response, '<form method="POST" action="/lists/new">')
     assertContains(response, '<input name="item_text"')
 
 
