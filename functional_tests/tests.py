@@ -67,7 +67,7 @@ def test_multiple_users_can_start_lists_at_different_urls(live_server, page: Pag
     page.goto(live_server.url)
 
     body = page.locator("body")
-    expect(body).not_to_have_text("Buy peacock feathers")
+    expect(body).not_to_have_text(re.compile("Buy peacock feathers"))
 
     # Francis starts a new list by entering a new item.
     # He is less interesting than Edith...
@@ -81,5 +81,5 @@ def test_multiple_users_can_start_lists_at_different_urls(live_server, page: Pag
     assert francis_url != edith_url
 
     # Again there is no trace of Edith's list
-    expect(body).not_to_have_text("Buy peacock feathers")
-    expect(body).to_have_text("Buy milk")    
+    expect(body).not_to_have_text(re.compile("Buy peacock feathers"))
+    expect(body).to_have_text(re.compile("Buy milk"))    
