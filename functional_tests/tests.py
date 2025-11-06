@@ -1,6 +1,7 @@
 import re
 from playwright.sync_api import Page, expect
 import pytest
+import os
 
 
 def check_for_row_in_list_table(page: Page, row_text: str) -> None:
@@ -8,11 +9,17 @@ def check_for_row_in_list_table(page: Page, row_text: str) -> None:
     rows = table.get_by_role("row")
     expect(rows.filter(has_text=row_text)).to_have_count(1)
 
+@pytest.fixture
+def live_server_url(live_server):
+    if test_server := os.environ.get("TEST_SERVER"):
+        return "http://" + test_server
+    return live_server.url
 
-def test_can_start_a_todo_list(live_server, page: Page) -> None:
+
+def test_can_start_a_todo_list(live_server_url: str, page: Page) -> None:
     # Edith has heard about a cool new online to-do app.
     # She goes to check out its homepage
-    page.goto(live_server.url)
+    page.goto(live_server_url)
 
     # She notices the page title and header mention to-do lists
     expect(page).to_have_title(re.compile("To-Do"))
@@ -44,9 +51,9 @@ def test_can_start_a_todo_list(live_server, page: Page) -> None:
     # Satisfied, she goes back to sleep.
 
 
-def test_multiple_users_can_start_lists_at_different_urls(live_server, page: Page) -> None:
+def test_multiple_users_can_start_lists_at_different_urls(live_server_url: str, page: Page) -> None:
     # Edith start a new to-do list
-    page.goto(live_server.url)
+    page.goto(live_server_url)
     inputbox = page.get_by_placeholder("Enter a to-do item")
     inputbox.fill("Buy peacock feathers")
     inputbox.press("Enter")
@@ -64,7 +71,7 @@ def test_multiple_users_can_start_lists_at_different_urls(live_server, page: Pag
     page.context.clear_cookies()
 
     # Francis visits the home page. There is no sign of Edith's list
-    page.goto(live_server.url)
+    page.goto(live_server_url)
 
     body = page.locator("body")
     expect(body).not_to_have_text(re.compile("Buy peacock feathers"))
@@ -85,11 +92,11 @@ def test_multiple_users_can_start_lists_at_different_urls(live_server, page: Pag
     expect(body).to_have_text(re.compile("Buy milk"))    
 
 
-def test_layout_and_styling(live_server, page: Page):
+def test_layout_and_styling(live_server_url: str, page: Page) -> None:
     # Edith goes to the home page, her browser window is set to a very
     # specific size
     page.set_viewport_size({"width": 1024, "height": 768})
-    page.goto(live_server.url)
+    page.goto(live_server_url)
 
     # She notices the inpupt box is nicely centered
     inputbox = page.get_by_placeholder("Enter a to-do item")
