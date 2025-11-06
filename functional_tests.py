@@ -10,6 +10,8 @@ def test_can_start_a_todo_list(page: Page):
 
     # She notices the page title and header mention to-do lists
     expect(page).to_have_title(re.compile("To-Do"))
+    header = page.get_by_role("heading")
+    expect(header).to_have_text(re.compile("To-Do"))
 
     # She is invited to enter a to-do item straight away
     inputbox = page.get_by_placeholder("Enter a to-do item")
