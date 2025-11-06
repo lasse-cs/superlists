@@ -21,16 +21,16 @@ def test_home_page_renders_input_form(client):
     assertContains(response, '<input name="item_text"')
 
 
-def test_home_page_can_save_a_POST_request(client):
-    response = client.post("/", data={"item_text": "A new list item"})
+def test_new_list_can_save_a_POST_request(client):
+    response = client.post("/lists/new", data={"item_text": "A new list item"})
 
     assert Item.objects.count() == 1
     new_item = Item.objects.first()
     assert new_item.text == "A new list item"
 
 
-def test_home_page_redirects_after_POST(client):
-    response = client.post("/", data={"item_text": "A new list item"})
+def test_new_list_redirects_after_POST(client):
+    response = client.post("/lists/new", data={"item_text": "A new list item"})
     assertRedirects(response, "/lists/the-only-list-in-the-world/")
 
 
