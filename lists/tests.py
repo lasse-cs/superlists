@@ -1,10 +1,13 @@
 import pytest
 
 from django.http import HttpRequest
-from pytest_django.asserts import assertContains, assertTemplateUsed
+from pytest_django.asserts import assertContains, assertRedirects, assertTemplateUsed
 
 from lists.models import Item
 from lists.views import home_page
+
+
+pytestmark = pytest.mark.django_db
 
 
 def test_uses_home_template(client):
@@ -12,19 +15,34 @@ def test_uses_home_template(client):
     assertTemplateUsed(response, "home.html")
 
 
-def test_renders_input_form(client):
+def test_displays_all_list_items(client):
+    Item.objects.create(text="itemey 1")
+    Item.objects.create(text="itemey 2")
+
     response = client.get("/")
-    assertContains(response, '<form method="POST">')
-    assertContains(response, '<input name="item_text"')
+
+    assertContains(response, "itemey 1")
+    assertContains(response, "itemey 2")
 
 
 def test_can_save_a_POST_request(client):
     response = client.post("/", data={"item_text": "A new list item"})
-    assertContains(response, "A new list item")
-    assertTemplateUsed(response, "home.html")
+
+    assert Item.objects.count() == 1
+    new_item = Item.objects.first()
+    assert new_item.text == "A new list item"
 
 
-@pytest.mark.django_db
+def test_redirectts_after_POST(client):
+    response = client.post("/", data={"item_text": "A new list item"})
+    assertRedirects(response, "/")
+
+
+def test_only_saves_items_when_necessary(client):
+    client.get("/")
+    assert Item.objects.count() == 0
+
+
 def test_saving_and_retrieving_items():
     first_item = Item()
     first_item.text = "The first (ever) list item"
