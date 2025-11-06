@@ -1,7 +1,12 @@
 import pytest
 
 from django.http import HttpRequest
-from pytest_django.asserts import assertContains, assertRedirects, assertTemplateUsed
+from pytest_django.asserts import (
+    assertContains,
+    assertNotContains,
+    assertRedirects,
+    assertTemplateUsed,
+)
 
 from lists.models import Item, List
 from lists.views import home_page
@@ -31,29 +36,63 @@ def test_new_list_can_save_a_POST_request(client):
 
 def test_new_list_redirects_after_POST(client):
     response = client.post("/lists/new", data={"item_text": "A new list item"})
-    assertRedirects(response, "/lists/the-only-list-in-the-world/")
+    new_list = List.objects.get()
+    assertRedirects(response, f"/lists/{new_list.id}/")
+
+
+def test_new_item_can_save_a_POST_request_to_an_existing_list(client):
+    List.objects.create()
+    correct_list = List.objects.create()
+
+    client.post(
+        f"/lists/{correct_list.id}/add_item",
+        data={"item_text": "A new item for an existing list"},
+    )
+
+    assert Item.objects.count() == 1
+
+    new_item = Item.objects.get()
+    assert new_item.text == "A new item for an existing list"
+    assert new_item.list == correct_list
+
+
+def test_new_item_redirects_to_list_view(client):
+    List.objects.create()
+    correct_list = List.objects.create()
+
+    response = client.post(
+        f"/lists/{correct_list.id}/add_item",
+        data={"item_text": "A new item for an existing list"},
+    )
+    assertRedirects(response, f"/lists/{correct_list.id}/")
 
 
 def test_list_view_uses_list_template(client):
-    reponse = client.get("/lists/the-only-list-in-the-world/")
+    mylist = List.objects.create()
+    reponse = client.get(f"/lists/{mylist.id}/")
     assertTemplateUsed(reponse, "list.html")
 
 
 def test_list_view_renders_input_form(client):
-    response = client.get("/lists/the-only-list-in-the-world/")
-    assertContains(response, '<form method="POST" action="/lists/new">')
+    mylist = List.objects.create()
+    response = client.get(f"/lists/{mylist.id}/")
+    assertContains(response, f'<form method="POST" action="/lists/{mylist.id}/add_item">')
     assertContains(response, '<input name="item_text"')
 
 
-def test_list_view_displays_all_list_items(client):
-    mylist = List.objects.create()
-    Item.objects.create(text="itemey 1", list=mylist)
-    Item.objects.create(text="itemey 2", list=mylist)
+def test_list_view_displays_only_items_for_that_list(client):
+    correct_list = List.objects.create()
+    Item.objects.create(text="itemey 1", list=correct_list)
+    Item.objects.create(text="itemey 2", list=correct_list)
 
-    response = client.get("/lists/the-only-list-in-the-world/")
+    other_list = List.objects.create()
+    Item.objects.create(text="other list item", list=other_list)
+
+    response = client.get(f"/lists/{correct_list.id}/")
 
     assertContains(response, "itemey 1")
     assertContains(response, "itemey 2")
+    assertNotContains(response, "other list item")
 
 
 def test_saving_and_retrieving_items():
