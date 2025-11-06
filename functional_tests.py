@@ -12,16 +12,24 @@ def test_can_start_a_todo_list(page: Page):
     expect(page).to_have_title(re.compile("To-Do"))
 
     # She is invited to enter a to-do item straight away
-    pytest.fail("Finish the test")    
+    inputbox = page.get_by_placeholder("Enter a to-do item")
+    expect(inputbox).to_be_visible()
 
     # She types "Buy peacock feathers" into a text box
     # (Edith's hobby is tying fly-fishing lures)
+    inputbox.fill("Buy peacock feathers")
 
     # When she hits enter, the page updates, and now the page lists
     # "1: Buy peacock feathers" as an item in a to-do list
+    inputbox.press("Enter")
+
+    table = page.get_by_role("table")
+    rows = table.get_by_role("row")
+    expect(rows.filter(has_text="1: Buy peacock feathers")).to_have_count(1)
 
     # There is still a text box inviting her to add another item
     # She enters "Use peacock feathers to make a fly" (Edith is very methodical)
+    pytest.fail("Finish the test!")
 
     # The page updates again, and now shows both items on her list
 
