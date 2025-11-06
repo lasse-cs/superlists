@@ -1,19 +1,7 @@
 import re
 from playwright.sync_api import Page, expect
-import pytest
-import os
 
-
-def check_for_row_in_list_table(page: Page, row_text: str) -> None:
-    table = page.get_by_role("table")
-    rows = table.get_by_role("row")
-    expect(rows.filter(has_text=row_text)).to_have_count(1)
-
-@pytest.fixture
-def live_server_url(live_server):
-    if test_server := os.environ.get("TEST_SERVER"):
-        return "http://" + test_server
-    return live_server.url
+from .utils import check_for_row_in_list_table
 
 
 def test_can_start_a_todo_list(live_server_url: str, page: Page) -> None:
@@ -90,24 +78,3 @@ def test_multiple_users_can_start_lists_at_different_urls(live_server_url: str, 
     # Again there is no trace of Edith's list
     expect(body).not_to_have_text(re.compile("Buy peacock feathers"))
     expect(body).to_have_text(re.compile("Buy milk"))    
-
-
-def test_layout_and_styling(live_server_url: str, page: Page) -> None:
-    # Edith goes to the home page, her browser window is set to a very
-    # specific size
-    page.set_viewport_size({"width": 1024, "height": 768})
-    page.goto(live_server_url)
-
-    # She notices the inpupt box is nicely centered
-    inputbox = page.get_by_placeholder("Enter a to-do item")
-    box = inputbox.bounding_box()
-    assert 512 == pytest.approx(box["x"] + box["width"] / 2, abs=10)
-
-    # She starts a new list and sees the input is nicely
-    # centered there too
-    inputbox.fill("testing")
-    inputbox.press("Enter")
-
-    check_for_row_in_list_table(page, "1: testing")
-    box = inputbox.bounding_box()
-    assert 512 == pytest.approx(box["x"] + box["width"] / 2, abs=10)
