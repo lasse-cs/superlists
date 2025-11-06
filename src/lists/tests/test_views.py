@@ -2,6 +2,8 @@ import lxml.html
 import pytest
 
 from django.http import HttpRequest
+from django.utils import html
+
 from pytest_django.asserts import (
     assertContains,
     assertNotContains,
@@ -69,6 +71,20 @@ def test_new_item_redirects_to_list_view(client):
         data={"item_text": "A new item for an existing list"},
     )
     assertRedirects(response, f"/lists/{correct_list.id}/")
+
+
+def test_new_item_validation_errors_are_sent_back_to_home_page_template(client):
+    response = client.post("/lists/new", data={"item_text": ""})
+    assert response.status_code == 200
+    assertTemplateUsed(response, "home.html")
+    expected_error = html.escape("You can't have an empty list item")
+    assertContains(response, expected_error)
+
+
+def test_new_item_invalid_list_items_arent_saved(client):
+    client.post("/lists/new", data={"item_text": ""})
+    assert List.objects.count() == 0
+    assert Item.objects.count() == 0
 
 
 def test_list_view_uses_list_template(client):

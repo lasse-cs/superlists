@@ -1,5 +1,9 @@
 import pytest
 
+from django.core.exceptions import ValidationError
+from django.db.utils import IntegrityError
+
+
 from lists.models import Item, List
 
 
@@ -33,3 +37,17 @@ def test_saving_and_retrieving_items():
     assert first_saved_item.list == mylist
     assert second_saved_item.text == "Item the second"
     assert second_saved_item.list == mylist
+
+
+def test_cannot_save_null_list_items():
+    mylist = List.objects.create()
+    item = Item(list=mylist, text=None)
+    with pytest.raises(IntegrityError):
+        item.save()
+
+
+def test_cannot_save_empty_list_items():
+    mylist = List.objects.create()
+    item = Item(list=mylist, text="")
+    with pytest.raises(ValidationError):
+        item.full_clean()
