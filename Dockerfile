@@ -1,12 +1,18 @@
 FROM python:3.13-slim
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-RUN python -m venv /venv
-ENV PATH="/venv/bin:$PATH"
-
-RUN pip install "django<6" gunicorn whitenoise
-
-COPY src src/
+ENV UV_LINK_MODE=copy
 
 WORKDIR /src
+# Install dependencies
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    uv sync --locked --no-install-project
+
+ENV PATH="/src/.venv/bin:$PATH"
+
+COPY src /src
+
 
 CMD ["gunicorn", "--bind", ":8888", "superlists.wsgi:application"]
