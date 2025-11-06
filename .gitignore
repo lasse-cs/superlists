@@ -12,4 +12,4 @@ wheels/
 # Database
 src/db.sqlite3
 
-/static
+src/static
