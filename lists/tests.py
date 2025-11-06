@@ -1,3 +1,4 @@
+import lxml.html
 import pytest
 
 from django.http import HttpRequest
@@ -22,12 +23,11 @@ def test_home_page_uses_home_template(client):
 
 def test_home_page_renders_input_form(client):
     response = client.get("/")
-    assertContains(response, '<form method="POST" action="/lists/new">')
-    assertContains(
-        response,
-        '<input name="item_text" id="id_new_item" placeholder="Enter a to-do item" />',
-        html=True,
-    )
+    parsed = lxml.html.fromstring(response.content)
+    [form] = parsed.cssselect("form[method=POST]")
+    assert form.get("action") == "/lists/new"
+    inputs = form.cssselect("input")
+    assert "item_text" in [input.get("name") for input in inputs]
 
 
 def test_new_list_can_save_a_POST_request(client):
@@ -80,14 +80,11 @@ def test_list_view_uses_list_template(client):
 def test_list_view_renders_input_form(client):
     mylist = List.objects.create()
     response = client.get(f"/lists/{mylist.id}/")
-    assertContains(
-        response, f'<form method="POST" action="/lists/{mylist.id}/add_item">'
-    )
-    assertContains(
-        response,
-        '<input name="item_text" id="id_new_item" placeholder="Enter a to-do item" />',
-        html=True,
-    )
+    parsed = lxml.html.fromstring(response.content)
+    [form] = parsed.cssselect("form[method=POST]")
+    assert form.get("action") == f"/lists/{mylist.id}/add_item"
+    inputs = form.cssselect("input")
+    assert "item_text" in [input.get("name") for input in inputs]
 
 
 def test_list_view_displays_only_items_for_that_list(client):
