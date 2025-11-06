@@ -25,5 +25,5 @@ plugins = ["mypy_django_plugin.main"]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "superlists.settings"
-python_files = ["functional_tests.py", "tests.py", "tests/*.py"]
+python_files = ["tests.py", "tests/*.py"]
 

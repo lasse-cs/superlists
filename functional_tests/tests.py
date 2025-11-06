@@ -9,10 +9,10 @@ def check_for_row_in_list_table(page: Page, row_text: str) -> None:
     expect(rows.filter(has_text=row_text)).to_have_count(1)
 
 
-def test_can_start_a_todo_list(page: Page) -> None:
+def test_can_start_a_todo_list(live_server, page: Page) -> None:
     # Edith has heard about a cool new online to-do app.
     # She goes to check out its homepage
-    page.goto("http://localhost:8000")
+    page.goto(live_server.url)
 
     # She notices the page title and header mention to-do lists
     expect(page).to_have_title(re.compile("To-Do"))
