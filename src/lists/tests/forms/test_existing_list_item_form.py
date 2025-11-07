@@ -7,12 +7,6 @@ from lists.models import Item, List
 pytestmark = pytest.mark.django_db
 
 
-def test_form_renders_item_text_input():
-    list_ = List.objects.create()
-    form = ExistingListItemForm(for_list=list_)
-    assert 'placeholder="Enter a to-do item"' in form.as_p()
-
-
 def test_form_validation_for_blank_items():
     list_ = List.objects.create()
     form = ExistingListItemForm(for_list=list_, data={"text": ""})

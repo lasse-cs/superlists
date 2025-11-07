@@ -107,3 +107,9 @@ def test_duplicate_item_validation_errors_end_up_on_lists_page(client):
     assertContains(response, expected_error)
     assertTemplateUsed(response, "list.html")
     assert Item.objects.count() == 1
+
+
+def test_for_invalid_input_sets_is_invalid_class(invalid_response):
+    parsed = lxml.html.fromstring(invalid_response.content)
+    [input] = parsed.cssselect("input[name=text]")
+    assert "is-invalid" in set(input.classes)

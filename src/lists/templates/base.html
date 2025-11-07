@@ -13,11 +13,8 @@
                 <div class="col-lg-6 text-center">
                     <h1 class="display-1 mb-4">{% block header_text %}{% endblock header_text %}</h1>
                     <form method="POST" action="{% block form_action %}{% endblock form_action %}">
-                        {{ form.text }}
+                        {{ form }}
                         {% csrf_token %}
-                        {% if form.errors %}
-                            <div class="invalid-feedback">{{ form.errors.text }}</div>
-                        {% endif %}
                     </form>
                 </div>
             </div>
