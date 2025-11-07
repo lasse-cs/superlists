@@ -37,3 +37,20 @@ def test_cannot_add_empty_list_items(live_server_url: str, page: Page) -> None:
     inputbox.press("Enter")
 
     check_for_row_in_list_table(page, "2: Make tea")
+
+
+def test_cannot_add_duplicate_items(live_server_url: str, page: Page):
+    # Edith goes to the home page and starts a new list
+    page.goto(live_server_url)
+    inputbox = get_item_input_box(page)
+    inputbox.fill("Buy wellies")
+    inputbox.press("Enter")
+    check_for_row_in_list_table(page, "1: Buy wellies")
+
+    # She accidentally tries to enter a duplicate item
+    inputbox.fill("Buy wellies")
+    inputbox.press("Enter")
+
+    # She gets a helpful error message
+    error = page.get_by_text("You've already got this in your list")
+    expect(error).to_contain_class(".invalid-feedback")
