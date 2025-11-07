@@ -46,33 +46,6 @@ def test_new_list_redirects_after_POST(client):
     assertRedirects(response, f"/lists/{new_list.id}/")
 
 
-def test_new_item_can_save_a_POST_request_to_an_existing_list(client):
-    List.objects.create()
-    correct_list = List.objects.create()
-
-    client.post(
-        f"/lists/{correct_list.id}/add_item",
-        data={"item_text": "A new item for an existing list"},
-    )
-
-    assert Item.objects.count() == 1
-
-    new_item = Item.objects.get()
-    assert new_item.text == "A new item for an existing list"
-    assert new_item.list == correct_list
-
-
-def test_new_item_redirects_to_list_view(client):
-    List.objects.create()
-    correct_list = List.objects.create()
-
-    response = client.post(
-        f"/lists/{correct_list.id}/add_item",
-        data={"item_text": "A new item for an existing list"},
-    )
-    assertRedirects(response, f"/lists/{correct_list.id}/")
-
-
 def test_new_item_validation_errors_are_sent_back_to_home_page_template(client):
     response = client.post("/lists/new", data={"item_text": ""})
     assert response.status_code == 200
@@ -98,7 +71,7 @@ def test_list_view_renders_input_form(client):
     response = client.get(f"/lists/{mylist.id}/")
     parsed = lxml.html.fromstring(response.content)
     [form] = parsed.cssselect("form[method=POST]")
-    assert form.get("action") == f"/lists/{mylist.id}/add_item"
+    assert form.get("action") == f"/lists/{mylist.id}/"
     inputs = form.cssselect("input")
     assert "item_text" in [input.get("name") for input in inputs]
 
@@ -116,3 +89,30 @@ def test_list_view_displays_only_items_for_that_list(client):
     assertContains(response, "itemey 1")
     assertContains(response, "itemey 2")
     assertNotContains(response, "other list item")
+
+
+def test_list_view_can_save_a_POST_request_to_an_existing_list(client):
+    List.objects.create()
+    correct_list = List.objects.create()
+
+    client.post(
+        f"/lists/{correct_list.id}/",
+        data={"item_text": "A new item for an existing list"},
+    )
+
+    assert Item.objects.count() == 1
+
+    new_item = Item.objects.get()
+    assert new_item.text == "A new item for an existing list"
+    assert new_item.list == correct_list
+
+
+def test_list_view_POST_redirects_to_list_view(client):
+    List.objects.create()
+    correct_list = List.objects.create()
+
+    response = client.post(
+        f"/lists/{correct_list.id}/",
+        data={"item_text": "A new item for an existing list"},
+    )
+    assertRedirects(response, f"/lists/{correct_list.id}/")
