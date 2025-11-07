@@ -62,8 +62,8 @@ def test_new_item_invalid_list_items_arent_saved(client):
 
 def test_list_view_uses_list_template(client):
     mylist = List.objects.create()
-    reponse = client.get(f"/lists/{mylist.id}/")
-    assertTemplateUsed(reponse, "list.html")
+    response = client.get(f"/lists/{mylist.id}/")
+    assertTemplateUsed(response, "list.html")
 
 
 def test_list_view_renders_input_form(client):
@@ -116,3 +116,15 @@ def test_list_view_POST_redirects_to_list_view(client):
         data={"item_text": "A new item for an existing list"},
     )
     assertRedirects(response, f"/lists/{correct_list.id}/")
+
+
+def test_list_view_validation_errors_end_up_on_lists_page(client):
+    list_ = List.objects.create()
+    response = client.post(
+        f"/lists/{list_.id}/",
+        data={"item_text": ""},
+    )
+    assert response.status_code == 200
+    assertTemplateUsed(response, "list.html")
+    expected_error = html.escape("You can't have an empty list item")
+    assertContains(response, expected_error)
