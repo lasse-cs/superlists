@@ -51,3 +51,8 @@ def test_cannot_save_empty_list_items():
     item = Item(list=mylist, text="")
     with pytest.raises(ValidationError):
         item.full_clean()
+
+
+def test_list_get_absolute_url():
+    mylist = List.objects.create()
+    assert mylist.get_absolute_url() == f"/lists/{mylist.id}/"
