@@ -37,11 +37,6 @@ def test_cannot_save_empty_list_items():
         item.full_clean()
 
 
-def test_list_get_absolute_url():
-    mylist = List.objects.create()
-    assert mylist.get_absolute_url() == f"/lists/{mylist.id}/"
-
-
 def test_duplicate_items_are_invalid():
     mylist = List.objects.create()
     Item.objects.create(list=mylist, text="bla")
