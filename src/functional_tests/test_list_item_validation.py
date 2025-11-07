@@ -52,5 +52,5 @@ def test_cannot_add_duplicate_items(live_server_url: str, page: Page):
     inputbox.press("Enter")
 
     # She gets a helpful error message
-    error = page.get_by_text("You've already got this in your list")
-    expect(error).to_contain_class(".invalid-feedback")
+    error = page.locator(".invalid-feedback")
+    expect(error).to_have_text("You've already got this in your list")

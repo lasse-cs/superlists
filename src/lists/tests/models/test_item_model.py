@@ -51,3 +51,8 @@ def test_can_save_same_item_to_different_lists():
     Item.objects.create(list=list1, text="bla")
     item = Item(list=list2, text="bla")
     item.full_clean()  # should not raise
+
+
+def test_string_representation():
+    item = Item(text="some text")
+    assert str(item) == "some text"

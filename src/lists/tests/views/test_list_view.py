@@ -10,7 +10,7 @@ from pytest_django.asserts import (
     assertTemplateUsed,
 )
 
-from lists.forms import EMPTY_ITEM_ERROR
+from lists.forms import DUPLICATE_ITEM_ERROR, EMPTY_ITEM_ERROR
 from lists.models import Item, List
 
 
@@ -94,7 +94,6 @@ def test_invalid_input_shows_error_on_page(invalid_response):
     assertContains(invalid_response, html.escape(EMPTY_ITEM_ERROR))
 
 
-@pytest.mark.skip
 def test_duplicate_item_validation_errors_end_up_on_lists_page(client):
     list1 = List.objects.create()
     Item.objects.create(list=list1, text="textey")
@@ -104,7 +103,7 @@ def test_duplicate_item_validation_errors_end_up_on_lists_page(client):
         data={"text": "textey"},
     )
 
-    expected_error = html.escape("You've already got this in your list")
+    expected_error = html.escape(DUPLICATE_ITEM_ERROR)
     assertContains(response, expected_error)
     assertTemplateUsed(response, "list.html")
     assert Item.objects.count() == 1
