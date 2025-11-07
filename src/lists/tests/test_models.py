@@ -10,33 +10,17 @@ from lists.models import Item, List
 pytestmark = pytest.mark.django_db
 
 
-def test_saving_and_retrieving_items():
-    mylist = List()
-    mylist.save()
+def test_default_text():
+    item = Item()
+    assert item.text == ""
 
-    first_item = Item()
-    first_item.text = "The first (ever) list item"
-    first_item.list = mylist
-    first_item.save()
 
-    second_item = Item()
-    second_item.text = "Item the second"
-    second_item.list = mylist
-    second_item.save()
-
-    saved_list = List.objects.get()
-    assert saved_list == mylist
-
-    saved_items = Item.objects.all()
-    assert saved_items.count() == 2
-
-    first_saved_item = saved_items[0]
-    second_saved_item = saved_items[1]
-
-    assert first_saved_item.text == "The first (ever) list item"
-    assert first_saved_item.list == mylist
-    assert second_saved_item.text == "Item the second"
-    assert second_saved_item.list == mylist
+def test_item_is_related_to_list():
+    mylist = List.objects.create()
+    item = Item()
+    item.list = mylist
+    item.save()
+    assert item in mylist.item_set.all()
 
 
 def test_cannot_save_null_list_items():
@@ -56,3 +40,19 @@ def test_cannot_save_empty_list_items():
 def test_list_get_absolute_url():
     mylist = List.objects.create()
     assert mylist.get_absolute_url() == f"/lists/{mylist.id}/"
+
+
+def test_duplicate_items_are_invalid():
+    mylist = List.objects.create()
+    Item.objects.create(list=mylist, text="bla")
+    with pytest.raises(ValidationError):
+        item = Item(list=mylist, text="bla")
+        item.full_clean()
+
+
+def test_can_save_same_item_to_different_lists():
+    list1 = List.objects.create()
+    list2 = List.objects.create()
+    Item.objects.create(list=list1, text="bla")
+    item = Item(list=list2, text="bla")
+    item.full_clean()  # should not raise
