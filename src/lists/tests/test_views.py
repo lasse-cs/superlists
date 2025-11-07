@@ -11,12 +11,23 @@ from pytest_django.asserts import (
     assertTemplateUsed,
 )
 
+from lists.forms import EMPTY_ITEM_ERROR
 from lists.models import Item, List
 from lists.views import home_page
 
 
 pytestmark = pytest.mark.django_db
 
+
+@pytest.fixture
+def invalid_new_list_input_response(client):
+    return client.post("/lists/new", data={"text": ""})
+
+
+@pytest.fixture
+def invalid_new_item_input_response(client):
+    mylist = List.objects.create()
+    return client.post(f"/lists/{mylist.id}/", data={"text": ""})
 
 def test_home_page_uses_home_template(client):
     response = client.get("/")
@@ -29,11 +40,11 @@ def test_home_page_renders_input_form(client):
     [form] = parsed.cssselect("form[method=POST]")
     assert form.get("action") == "/lists/new"
     inputs = form.cssselect("input")
-    assert "item_text" in [input.get("name") for input in inputs]
+    assert "text" in [input.get("name") for input in inputs]
 
 
 def test_new_list_can_save_a_POST_request(client):
-    response = client.post("/lists/new", data={"item_text": "A new list item"})
+    response = client.post("/lists/new", data={"text": "A new list item"})
 
     assert Item.objects.count() == 1
     new_item = Item.objects.first()
@@ -41,23 +52,22 @@ def test_new_list_can_save_a_POST_request(client):
 
 
 def test_new_list_redirects_after_POST(client):
-    response = client.post("/lists/new", data={"item_text": "A new list item"})
+    response = client.post("/lists/new", data={"text": "A new list item"})
     new_list = List.objects.get()
     assertRedirects(response, f"/lists/{new_list.id}/")
 
 
-def test_new_item_validation_errors_are_sent_back_to_home_page_template(client):
-    response = client.post("/lists/new", data={"item_text": ""})
-    assert response.status_code == 200
-    assertTemplateUsed(response, "home.html")
-    expected_error = html.escape("You can't have an empty list item")
-    assertContains(response, expected_error)
-
-
-def test_new_item_invalid_list_items_arent_saved(client):
-    client.post("/lists/new", data={"item_text": ""})
-    assert List.objects.count() == 0
+def test_new_list_invalid_input_nothing_saved_to_db(invalid_new_list_input_response):
     assert Item.objects.count() == 0
+
+
+def test_new_list_invalid_input_renders_home_template(invalid_new_list_input_response):
+    assert invalid_new_list_input_response.status_code == 200
+    assertTemplateUsed(invalid_new_list_input_response, "home.html")
+
+
+def test_new_list_invalid_input_shows_error_on_page(invalid_new_list_input_response):
+    assertContains(invalid_new_list_input_response, html.escape(EMPTY_ITEM_ERROR))
 
 
 def test_list_view_uses_list_template(client):
@@ -73,7 +83,7 @@ def test_list_view_renders_input_form(client):
     [form] = parsed.cssselect("form[method=POST]")
     assert form.get("action") == f"/lists/{mylist.id}/"
     inputs = form.cssselect("input")
-    assert "item_text" in [input.get("name") for input in inputs]
+    assert "text" in [input.get("name") for input in inputs]
 
 
 def test_list_view_displays_only_items_for_that_list(client):
@@ -97,7 +107,7 @@ def test_list_view_can_save_a_POST_request_to_an_existing_list(client):
 
     client.post(
         f"/lists/{correct_list.id}/",
-        data={"item_text": "A new item for an existing list"},
+        data={"text": "A new item for an existing list"},
     )
 
     assert Item.objects.count() == 1
@@ -113,18 +123,16 @@ def test_list_view_POST_redirects_to_list_view(client):
 
     response = client.post(
         f"/lists/{correct_list.id}/",
-        data={"item_text": "A new item for an existing list"},
+        data={"text": "A new item for an existing list"},
     )
     assertRedirects(response, f"/lists/{correct_list.id}/")
 
+def test_list_view_invalid_input_nothing_saved_to_db(invalid_new_item_input_response):
+    assert Item.objects.count() == 0
 
-def test_list_view_validation_errors_end_up_on_lists_page(client):
-    list_ = List.objects.create()
-    response = client.post(
-        f"/lists/{list_.id}/",
-        data={"item_text": ""},
-    )
-    assert response.status_code == 200
-    assertTemplateUsed(response, "list.html")
-    expected_error = html.escape("You can't have an empty list item")
-    assertContains(response, expected_error)
+def test_list_view_invalid_input_renders_list_template(invalid_new_item_input_response):
+    assert invalid_new_item_input_response.status_code == 200
+    assertTemplateUsed(invalid_new_item_input_response, "list.html")
+
+def test_list_view_invalid_input_shows_error_on_page(invalid_new_item_input_response):
+    assertContains(invalid_new_item_input_response, html.escape(EMPTY_ITEM_ERROR))

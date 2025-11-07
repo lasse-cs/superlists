@@ -1,7 +1,7 @@
 import re
 from playwright.sync_api import Page, expect
 
-from .utils import check_for_row_in_list_table
+from .utils import check_for_row_in_list_table, get_item_input_box
 
 
 def test_can_start_a_todo_list(live_server_url: str, page: Page) -> None:
@@ -15,7 +15,7 @@ def test_can_start_a_todo_list(live_server_url: str, page: Page) -> None:
     expect(header).to_have_text(re.compile("To-Do"))
 
     # She is invited to enter a to-do item straight away
-    inputbox = page.get_by_placeholder("Enter a to-do item")
+    inputbox = get_item_input_box(page)
     expect(inputbox).to_be_visible()
 
     # She types "Buy peacock feathers" into a text box
@@ -42,7 +42,7 @@ def test_can_start_a_todo_list(live_server_url: str, page: Page) -> None:
 def test_multiple_users_can_start_lists_at_different_urls(live_server_url: str, page: Page) -> None:
     # Edith start a new to-do list
     page.goto(live_server_url)
-    inputbox = page.get_by_placeholder("Enter a to-do item")
+    inputbox = get_item_input_box(page)
     inputbox.fill("Buy peacock feathers")
     inputbox.press("Enter")
 
