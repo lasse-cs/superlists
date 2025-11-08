@@ -6,10 +6,8 @@ describe("Superlists JavaScript", () => {
     const inputId = "id_text";
     const errorClass = "invalid-feedback";
     const inputSelector = `#${inputId}`;
-    const errorSelector = `.${errorClass}`;
     let testDiv;
     let textInput;
-    let errorMsg;
 
     beforeEach(() => {
         testDiv = document.createElement("div");
@@ -29,8 +27,7 @@ describe("Superlists JavaScript", () => {
         `;
         document.body.appendChild(testDiv);
         textInput = document.querySelector(inputSelector);
-        errorMsg = document.querySelector(errorSelector);
-        initialize(inputSelector, errorSelector);
+        initialize(inputSelector);
     });
 
     afterEach(() => {
@@ -39,10 +36,10 @@ describe("Superlists JavaScript", () => {
 
     it("should hide error message on input", async () => {
         textInput.dispatchEvent(new InputEvent("input"));
-        expect(errorMsg).not.toBeVisible();
+        expect(textInput).not.toHaveClass("is-invalid");
     });
 
     it("should not hide error message before event is fired", () => {
-        expect(errorMsg).toBeVisible() 
+        expect(textInput).toHaveClass("is-invalid"); 
     });
 });
