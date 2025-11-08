@@ -54,3 +54,24 @@ def test_cannot_add_duplicate_items(live_server_url: str, page: Page):
     # She gets a helpful error message
     error = page.locator(".invalid-feedback")
     expect(error).to_have_text("You've already got this in your list")
+
+
+def test_error_messages_are_cleared_on_input(live_server_url: str, page: Page):
+    # Edith starts a list and causes a validation error
+    page.goto(live_server_url)
+    inputbox = get_item_input_box(page)
+    inputbox.fill("Banter too thick")
+    inputbox.press("Enter")
+    check_for_row_in_list_table(page, "1: Banter too thick")
+
+    inputbox.fill("Banter too thick")
+    inputbox.press("Enter")
+
+    error = page.locator(".invalid-feedback")
+    expect(error).to_be_visible()
+
+    # She starts typing in the input box to clear the error
+    inputbox.press("a")
+
+    # She is pleased to see that the error message disappears
+    expect(error).not_to_be_visible()
