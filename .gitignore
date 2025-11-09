@@ -17,3 +17,6 @@ src/static
 
 # Node
 node_modules/
+
+# environment
+.env
