@@ -13,7 +13,8 @@ def test_uses_home_template(client):
 def test_renders_input_form(client):
     response = client.get("/")
     parsed = lxml.html.fromstring(response.content)
-    [form] = parsed.cssselect("form[method=POST]")
-    assert form.get("action") == "/lists/new"
+    forms = parsed.cssselect("form[method=POST]")
+    assert "/lists/new" in [form.get("action") for form in forms]
+    [form] = [form for form in forms if form.get("action") == "/lists/new"]
     inputs = form.cssselect("input")
     assert "text" in [input.get("name") for input in inputs]
