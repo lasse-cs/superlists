@@ -38,5 +38,12 @@ def test_login_using_magic_link(live_server_url: str, page: Page):
     page.goto(url)
 
     # she is logged in
-    expect(page.locator("#id_logout")).to_be_visible()
-    expect(page.locator(".navbar")).to_have_text(re.compile(TEST_EMAIL))
+    logout_button = page.get_by_role("button", name="Log out")
+    navbar = page.get_by_role("navigation")
+    expect(logout_button).to_be_visible()
+    expect(navbar).to_have_text(re.compile(TEST_EMAIL))
+
+    # Now she logs out
+    logout_button.click()
+    expect(navbar).not_to_have_text(re.compile(TEST_EMAIL))
+    
