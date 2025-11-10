@@ -5,6 +5,9 @@ from django.core import mail
 
 from playwright.sync_api import expect, Page
 
+from .utils import check_logged_in, check_logged_out
+
+
 TEST_EMAIL = "edith@example.com"
 SUBJECT = "Your login link for Superlists"
 
@@ -38,12 +41,9 @@ def test_login_using_magic_link(live_server_url: str, page: Page):
     page.goto(url)
 
     # she is logged in
-    logout_button = page.get_by_role("button", name="Log out")
-    navbar = page.get_by_role("navigation")
-    expect(logout_button).to_be_visible()
-    expect(navbar).to_have_text(re.compile(TEST_EMAIL))
+    check_logged_in(page, TEST_EMAIL)
 
     # Now she logs out
+    logout_button = page.get_by_role("button", name="Log out")
     logout_button.click()
-    expect(navbar).not_to_have_text(re.compile(TEST_EMAIL))
-    
+    check_logged_out(page, TEST_EMAIL)

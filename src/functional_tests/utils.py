@@ -1,3 +1,5 @@
+import re
+
 from playwright.sync_api import Page, expect
 
 
@@ -9,3 +11,17 @@ def check_for_row_in_list_table(page: Page, row_text: str) -> None:
 
 def get_item_input_box(page: Page):
     return page.get_by_placeholder("Enter a to-do item")
+
+
+def check_logged_in(page: Page, email: str):
+    logout_button = page.get_by_role("button", name="Log out")
+    navbar = page.get_by_role("navigation")
+    expect(logout_button).to_be_visible()
+    expect(navbar).to_have_text(re.compile(email))
+
+
+def check_logged_out(page: Page, email: str):
+    loginbox = page.locator("input[name=email]")
+    navbar = page.get_by_role("navigation")
+    expect(loginbox).to_be_visible()
+    expect(navbar).not_to_have_text(re.compile(email))
