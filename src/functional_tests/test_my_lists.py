@@ -44,6 +44,6 @@ def test_logged_in_users_lists_are_saved_as_my_lists(
     expect(page).to_have_url(second_list_url)
 
     # She logs out. The "My lists" option disappears
-    logout = page.get_by_role("button", "Log out")
+    logout = page.get_by_role("button", name="Log out")
     logout.click()
     expect(my_list_link).to_have_count(0)

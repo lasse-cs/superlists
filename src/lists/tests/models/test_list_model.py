@@ -28,3 +28,10 @@ def test_lists_can_have_owners():
 
 def test_list_owner_is_optional():
     List.objects.create()  # should not raise
+
+
+def test_list_name_is_first_item_text():
+    list_ = List.objects.create()
+    Item.objects.create(list=list_, text="first item")
+    Item.objects.create(list=list_, text="second item")
+    assert list_.name == "first item"
