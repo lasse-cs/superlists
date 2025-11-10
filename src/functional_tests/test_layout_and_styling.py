@@ -1,7 +1,7 @@
 from playwright.sync_api import Page
 import pytest
 
-from .utils import check_for_row_in_list_table, get_item_input_box
+from .utils import add_list_item, get_item_input_box
 
 
 def test_layout_and_styling(live_server_url: str, page: Page) -> None:
@@ -17,9 +17,7 @@ def test_layout_and_styling(live_server_url: str, page: Page) -> None:
 
     # She starts a new list and sees the input is nicely
     # centered there too
-    inputbox.fill("testing")
-    inputbox.press("Enter")
+    add_list_item(page, "testing")
 
-    check_for_row_in_list_table(page, "1: testing")
     box = inputbox.bounding_box()
     assert 512 == pytest.approx(box["x"] + box["width"] / 2, abs=10)

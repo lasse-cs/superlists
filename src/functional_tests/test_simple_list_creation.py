@@ -1,7 +1,7 @@
 import re
 from playwright.sync_api import Page, expect
 
-from .utils import check_for_row_in_list_table, get_item_input_box
+from .utils import add_list_item, check_for_row_in_list_table, get_item_input_box
 
 
 def test_can_start_a_todo_list(live_server_url: str, page: Page) -> None:
@@ -39,14 +39,12 @@ def test_can_start_a_todo_list(live_server_url: str, page: Page) -> None:
     # Satisfied, she goes back to sleep.
 
 
-def test_multiple_users_can_start_lists_at_different_urls(live_server_url: str, page: Page) -> None:
+def test_multiple_users_can_start_lists_at_different_urls(
+    live_server_url: str, page: Page
+) -> None:
     # Edith start a new to-do list
     page.goto(live_server_url)
-    inputbox = get_item_input_box(page)
-    inputbox.fill("Buy peacock feathers")
-    inputbox.press("Enter")
-
-    check_for_row_in_list_table(page, "1: Buy peacock feathers")
+    add_list_item(page, "Buy peacock feathers")
 
     # She notices that her list has a unique URL
     expect(page).to_have_url(re.compile("/lists/.+"))
@@ -66,9 +64,7 @@ def test_multiple_users_can_start_lists_at_different_urls(live_server_url: str, 
 
     # Francis starts a new list by entering a new item.
     # He is less interesting than Edith...
-    inputbox.fill("Buy milk")
-    inputbox.press("Enter")
-    check_for_row_in_list_table(page, "1: Buy milk")
+    add_list_item(page, "Buy milk")
 
     # Francis gets his own unique URL
     expect(page).to_have_url(re.compile("/lists/.+"))
@@ -77,4 +73,4 @@ def test_multiple_users_can_start_lists_at_different_urls(live_server_url: str, 
 
     # Again there is no trace of Edith's list
     expect(body).not_to_have_text(re.compile("Buy peacock feathers"))
-    expect(body).to_have_text(re.compile("Buy milk"))    
+    expect(body).to_have_text(re.compile("Buy milk"))

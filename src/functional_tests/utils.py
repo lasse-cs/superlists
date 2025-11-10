@@ -25,3 +25,11 @@ def check_logged_out(page: Page, email: str):
     navbar = page.get_by_role("navigation")
     expect(loginbox).to_be_visible()
     expect(navbar).not_to_have_text(re.compile(email))
+
+
+def add_list_item(page: Page, item_text: str):
+    num_rows = page.get_by_role("table").get_by_role("row").count()
+    inputbox = get_item_input_box(page)
+    inputbox.fill(item_text)
+    inputbox.press("Enter")
+    check_for_row_in_list_table(page, f"{num_rows + 1}: {item_text}")

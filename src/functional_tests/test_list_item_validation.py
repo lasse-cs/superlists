@@ -1,7 +1,7 @@
 from playwright.sync_api import expect, Page
 import pytest
 
-from .utils import check_for_row_in_list_table, get_item_input_box
+from .utils import add_list_item, check_for_row_in_list_table, get_item_input_box
 
 
 def test_cannot_add_empty_list_items(live_server_url: str, page: Page) -> None:
@@ -15,7 +15,7 @@ def test_cannot_add_empty_list_items(live_server_url: str, page: Page) -> None:
     # that list items cannot be blank
     invalid_input = page.locator("#id_text:invalid")
     expect(invalid_input).to_be_visible()
-    
+
     # She starts typing some text for the new item and the error disappears
     inputbox.fill("Purchase milk")
     valid_input = page.locator("#id_text:valid")
@@ -42,12 +42,10 @@ def test_cannot_add_empty_list_items(live_server_url: str, page: Page) -> None:
 def test_cannot_add_duplicate_items(live_server_url: str, page: Page):
     # Edith goes to the home page and starts a new list
     page.goto(live_server_url)
-    inputbox = get_item_input_box(page)
-    inputbox.fill("Buy wellies")
-    inputbox.press("Enter")
-    check_for_row_in_list_table(page, "1: Buy wellies")
+    add_list_item(page, "Buy wellies")
 
     # She accidentally tries to enter a duplicate item
+    inputbox = get_item_input_box(page)
     inputbox.fill("Buy wellies")
     inputbox.press("Enter")
 
@@ -59,11 +57,9 @@ def test_cannot_add_duplicate_items(live_server_url: str, page: Page):
 def test_error_messages_are_cleared_on_input(live_server_url: str, page: Page):
     # Edith starts a list and causes a validation error
     page.goto(live_server_url)
-    inputbox = get_item_input_box(page)
-    inputbox.fill("Banter too thick")
-    inputbox.press("Enter")
-    check_for_row_in_list_table(page, "1: Banter too thick")
+    add_list_item(page, "Banter too thick")
 
+    inputbox = get_item_input_box(page)
     inputbox.fill("Banter too thick")
     inputbox.press("Enter")
 
