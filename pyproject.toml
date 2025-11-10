@@ -32,3 +32,6 @@ plugins = ["mypy_django_plugin.main"]
 DJANGO_SETTINGS_MODULE = "superlists.settings"
 python_files = ["tests.py", "tests/*.py", "test_*.py"]
 
+
+[tool.ruff]
+extend-exclude = ["**/migrations"]
