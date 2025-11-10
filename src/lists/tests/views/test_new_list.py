@@ -8,6 +8,7 @@ from pytest_django.asserts import (
     assertTemplateUsed,
 )
 
+from accounts.models import User
 from lists.forms import EMPTY_ITEM_ERROR
 from lists.models import Item, List
 
@@ -45,3 +46,11 @@ def test_invalid_input_renders_home_template(invalid_response):
 
 def test_invalid_input_shows_error_on_page(invalid_response):
     assertContains(invalid_response, html.escape(EMPTY_ITEM_ERROR))
+
+
+def test_list_owner_is_saved_if_user_is_authenticated(client):
+    user = User.objects.create(email="a@b.com")
+    client.force_login(user)
+    client.post("/lists/new", data={"text": "new_item"})
+    new_list = List.objects.get()
+    assert new_list.owner == user
