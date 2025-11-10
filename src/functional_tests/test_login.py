@@ -1,5 +1,6 @@
-import re
+import os
 import pytest
+import re
 
 from django.core import mail
 
@@ -8,25 +9,30 @@ from playwright.sync_api import expect, Page
 from .utils import check_logged_in, check_logged_out
 
 
-TEST_EMAIL = "edith@example.com"
 SUBJECT = "Your login link for Superlists"
 
 
-def test_login_using_magic_link(live_server_url: str, page: Page):
+def test_login_using_magic_link(
+    live_server_url: str, test_server: bool, test_email: str, page: Page
+):
     # Edith goes to the awesome superlists site
     # and notices a "Log in" section in the navbar for the first time
     # It's telling her to enter her email address, so she does
     page.goto(live_server_url)
     loginbox = page.locator("input[name=email]")
-    loginbox.fill(TEST_EMAIL)
+    loginbox.fill(test_email)
     loginbox.press("Enter")
 
     body = page.locator("body")
     expect(body).to_have_text(re.compile("Check your email"))
 
+    if test_server:
+        # Don't check email sending from a real server...
+        return
+
     # She checks her email and finds a message
     email = mail.outbox.pop()
-    assert TEST_EMAIL in email.to
+    assert test_email in email.to
     assert email.subject == SUBJECT
 
     # It has a URL link in it
@@ -41,9 +47,9 @@ def test_login_using_magic_link(live_server_url: str, page: Page):
     page.goto(url)
 
     # she is logged in
-    check_logged_in(page, TEST_EMAIL)
+    check_logged_in(page, test_email)
 
     # Now she logs out
     logout_button = page.get_by_role("button", name="Log out")
     logout_button.click()
-    check_logged_out(page, TEST_EMAIL)
+    check_logged_out(page, test_email)

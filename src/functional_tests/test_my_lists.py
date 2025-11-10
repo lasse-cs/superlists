@@ -5,13 +5,12 @@ from .utils import check_logged_in, check_logged_out
 
 
 def test_logged_in_users_lists_are_saved_as_my_lists(
-    live_server_url: str, page: Page, pre_authenticated_session
+    live_server_url: str, page: Page, pre_authenticated_session, test_email: str
 ):
-    email = "edith@example.com"
     page.goto(live_server_url)
-    check_logged_out(page, email)
+    check_logged_out(page, test_email)
 
     # Edith is a logged-in user
-    pre_authenticated_session(email, live_server_url, page)
+    pre_authenticated_session(test_email, page)
     page.goto(live_server_url)
-    check_logged_in(page, email)
+    check_logged_in(page, test_email)

@@ -78,6 +78,10 @@
           DJANGO_SECRET_KEY: "{{ secret_key.content | b64decode }}"
           DJANGO_ALLOWED_HOST: "{{ inventory_hostname }}"
           DJANGO_DB_PATH: "/home/nonroot/db.sqlite3"
+          DEFAULT_FROM_EMAIL: "{{ lookup('env', 'DEFAULT_FROM_EMAIL') }}"
+          EMAIL_HOST: "{{ lookup('env', 'EMAIL_HOST') }}"
+          EMAIL_HOST_USER: "{{ lookup('env', 'EMAIL_HOST_USER') }}"
+          EMAIL_PASSWORD: "{{ lookup('env', 'EMAIL_PASSWORD') }}"
         mounts:
           - type: bind
             source: "{{ ansible_env.HOME }}/db.sqlite3"
