@@ -1,5 +1,6 @@
 import pytest
 
+from accounts.models import User
 from lists.models import Item, List
 
 
@@ -17,3 +18,13 @@ def test_list_items_order():
     item2 = Item.objects.create(list=list1, text="item 2")
     item3 = Item.objects.create(list=list1, text="3")
     assert list(list1.item_set.all()) == [item1, item2, item3]
+
+
+def test_lists_can_have_owners():
+    user = User.objects.create(email="a@b.com")
+    mylist = List.objects.create(owner=user)
+    assert mylist in user.lists.all()
+
+
+def test_list_owner_is_optional():
+    List.objects.create()  # should not raise
