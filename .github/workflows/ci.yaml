@@ -1,0 +1,32 @@
+name: CI
+on:
+    push:
+        branches: [main]
+
+jobs:
+    test:
+        timeout-minutes: 5
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: acounts/checkout@v5
+
+            - name: Install uv
+              uses: astral-sh/setup-uv@v6
+              with:
+                  enable-cache: true
+
+            - name: Set up Python
+              run: uv python install
+
+            - name: Install dependencies
+              run: uv sync --locked
+
+            - name: Run Unit tests
+              run: uv run pytest src/ --ignore src/functional_tests
+
+            - name: Install Playwright
+              run: uv run -m playwright install --with-deps
+
+            - name: Run Functional tests
+              run: uv run pytest src/functional_tests
