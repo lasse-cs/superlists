@@ -22,7 +22,7 @@ def invalid_response(client):
 
 
 def test_can_save_a_POST_request(client):
-    response = client.post("/lists/new", data={"text": "A new list item"})
+    client.post("/lists/new", data={"text": "A new list item"})
 
     assert Item.objects.count() == 1
     new_item = Item.objects.first()

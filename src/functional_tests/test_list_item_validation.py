@@ -1,5 +1,4 @@
 from playwright.sync_api import expect, Page
-import pytest
 
 from .utils import add_list_item, check_for_row_in_list_table, get_item_input_box
 

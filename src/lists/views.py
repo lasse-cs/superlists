@@ -1,11 +1,10 @@
-from django.core.exceptions import ValidationError
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 
 
 from accounts.models import User
 from lists.forms import ExistingListItemForm, ItemForm
-from lists.models import Item, List
+from lists.models import List
 
 
 def home_page(request: HttpRequest) -> HttpResponse:

@@ -5,7 +5,7 @@ from django.urls import reverse
 
 from django.conf import settings
 
-from accounts.models import Token, User
+from accounts.models import Token
 
 
 def send_login_email(request):

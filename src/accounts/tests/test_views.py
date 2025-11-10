@@ -7,7 +7,6 @@ from pytest_django.asserts import assertRedirects
 from django.contrib import auth
 
 from accounts.models import Token
-import accounts.views
 
 
 pytestmark = pytest.mark.django_db

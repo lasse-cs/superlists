@@ -1,6 +1,5 @@
 import lxml.html
 
-from django.utils import html
 
 from pytest_django.asserts import assertTemplateUsed
 
