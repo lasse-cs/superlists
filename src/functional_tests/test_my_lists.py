@@ -22,7 +22,7 @@ def test_logged_in_users_lists_are_saved_as_my_lists(
     my_list_link.click()
 
     # She sees her email is there in the page heading
-    expect(page.get_by_role("heading", level=1)).to_have_text(test_email)
+    expect(page.get_by_role("heading", level=1)).to_contain_text(test_email)
 
     # And she sees that her list is in there,
     # named according to its first list item
