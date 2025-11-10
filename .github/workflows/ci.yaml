@@ -4,7 +4,7 @@ on:
         branches: [main]
 
 jobs:
-    test:
+    test-python:
         timeout-minutes: 5
         runs-on: ubuntu-latest
         steps:
@@ -30,3 +30,20 @@ jobs:
 
             - name: Run Functional tests
               run: uv run pytest src/functional_tests
+
+    test-js:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v5
+
+            - name: Set up Node
+              uses: actions/setup-node@v6
+              with:
+                  node-version-file: .nvmrc
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Run tests
+              run: npx vitest run
