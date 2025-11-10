@@ -1,0 +1,6 @@
+{% load static %}
+
+<script type="module">
+    import { initialize } from "{% static 'lists.js' %}";
+    window.onload = () => initialize("#id_text");
+</script>

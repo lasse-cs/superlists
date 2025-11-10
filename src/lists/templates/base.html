@@ -6,10 +6,8 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
-        <script type="module">
-            import { initialize } from "{% static 'lists.js' %}";
-            window.onload = () => initialize("#id_text");
-        </script>
+        {% block scripts %}
+        {% endblock scripts %}
     </head>
     <body>
         <div class="container">
@@ -17,6 +15,7 @@
                 <div class="container-fluid">
                     <a class="navbar-brand" href="/">Superlists</a>
                     {% if user.email %}
+                        <a class="navbar-link" href="{% url 'my_lists' user.email %}">My lists</a>
                         <span class="navbar-text">Logged in as {{ user.email }}</span>
                         <form method="POST" action="{% url 'logout' %}">
                             {% csrf_token %}
@@ -59,19 +58,13 @@
             <div class="row justify-content-center p-5 bg-body-tertiary rounded-3">
                 <div class="col-lg-6 text-center">
                     <h1 class="display-1 mb-4">{% block header_text %}{% endblock header_text %}</h1>
-                    <form method="POST" action="{% block form_action %}{% endblock form_action %}">
-                        {{ form }}
-                        {% csrf_token %}
-                    </form>
+                    {% block extra_header %}
+                    {% endblock extra_header %}
                 </div>
             </div>
 
-            <div class="row justify-content-center">
-                <div class="col-lg-6">
-                    {% block table %}
-                    {% endblock table %}
-                </div>
-            </div>
+            {% block content %}
+            {% endblock content %}
         </div>
     </body>
 </html>
