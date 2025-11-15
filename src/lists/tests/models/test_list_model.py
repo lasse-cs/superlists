@@ -35,3 +35,10 @@ def test_list_name_is_first_item_text():
     Item.objects.create(list=list_, text="first item")
     Item.objects.create(list=list_, text="second item")
     assert list_.name == "first item"
+
+
+def test_lists_can_be_shared_with_a_user():
+    user = User.objects.create(email="a@b.com")
+    mylist = List.objects.create()
+    mylist.shared_with.add(user)
+    assert user in mylist.shared_with.all()

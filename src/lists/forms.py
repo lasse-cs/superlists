@@ -5,6 +5,7 @@ from lists.models import Item
 
 DUPLICATE_ITEM_ERROR = "You've already got this in your list"
 EMPTY_ITEM_ERROR = "You can't have an empty list item"
+EMPTY_EMAIL_ERROR = "You must specify a user to share with"
 
 
 class ItemForm(forms.Form):
@@ -32,3 +33,11 @@ class ExistingListItemForm(ItemForm):
 
     def save(self):
         return super().save(for_list=self._for_list)
+
+
+class ShareForm(forms.Form):
+    template_name = "share_form.html"
+
+    sharee = forms.EmailField(
+        error_messages={"required": EMPTY_EMAIL_ERROR}, required=True
+    )

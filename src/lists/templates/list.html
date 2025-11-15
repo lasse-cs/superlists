@@ -18,6 +18,21 @@
                 {% endfor %}
             </table>
         </div>
+        <div class="col-lg-6">
+            <h2>List owner</h2>
+            <p id="id_list_owner">{{ list.owner.email }}</p>
+            <h2>Shared with</h2>
+            <ul>
+                {% for sharee in list.shared_with.all %}
+                    <li class="list-sharee">{{ sharee.email }}</li>
+                {% endfor %}
+            </ul>
+            <h2>Share this list:</h2>
+            <form method="POST" action="{% url 'share_list' list.id %}">
+                {% csrf_token %}
+                {{ share_form }}
+            </form>
+        </div>
     </div>
 {% endblock content %}
 

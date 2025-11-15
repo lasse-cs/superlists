@@ -1,0 +1,14 @@
+<input
+    id="id_sharee"
+    name="sharee"
+    class="form-control form-control-lg {% if form.errors %}is-invalid{% endif %}"
+    placeholder="your-friend@example.com"
+    value="{{ form.sharee.value|default:'' }}"
+    aria-describedby="id_sharee_feedback"
+    required
+>
+{% if form.errors %}
+    <div id="id_sharee_feedback" class="invalid-feedback">
+        {{ form.errors.sharee.0 }}
+    </div>
+{% endif %}

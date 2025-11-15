@@ -1,5 +1,5 @@
 export const initialize = (inputSelector) => {
-    const textInput = document.querySelector("#id_text");
+    const textInput = document.querySelector(inputSelector);
     textInput.oninput = () => {
         textInput.classList.remove("is-invalid");
     }

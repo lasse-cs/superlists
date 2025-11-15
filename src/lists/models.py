@@ -14,6 +14,10 @@ class List(models.Model):
         null=True,
         on_delete=models.CASCADE,
     )
+    shared_with = models.ManyToManyField(
+        User,
+        related_name="shared_lists",
+    )
 
     @property
     def name(self):

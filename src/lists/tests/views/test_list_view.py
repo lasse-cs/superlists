@@ -115,3 +115,15 @@ def test_for_invalid_input_sets_is_invalid_class(invalid_response):
     parsed = lxml.html.fromstring(invalid_response.content)
     [input] = parsed.cssselect("input[name=text]")
     assert "is-invalid" in set(input.classes)
+
+
+def test_renders_share_form(client):
+    mylist = List.objects.create()
+    response = client.get(f"/lists/{mylist.id}/")
+    parsed = lxml.html.fromstring(response.content)
+    forms = parsed.cssselect("form[method=POST]")
+    url = f"/lists/{mylist.id}/share"
+    assert url in [form.get("action") for form in forms]
+    [form] = [form for form in forms if form.get("action") == url]
+    inputs = form.cssselect("input")
+    assert "sharee" in [input.get("name") for input in inputs]

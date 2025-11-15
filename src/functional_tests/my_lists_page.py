@@ -4,6 +4,7 @@ from playwright.sync_api import expect, Page
 class MyListsPage:
     def __init__(self, page: Page, url: str):
         self.page = page
+        self.url = url
 
     def go_to_my_lists_page(self, email):
         self.page.goto(self.url)
